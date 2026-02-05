@@ -1,0 +1,74 @@
+name: Test Action
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Run action
+        uses: ./
+        with:
+          token: ${{ secrets.HARDCOVER_TOKEN }}
+          user_id: ${{ secrets.HARDCOVER_USER_ID }}
+          output_path: test-output/reading.json
+          limit: '10'
+
+      - name: Validate output exists
+        shell: bash
+        run: |
+          test -f test-output/reading.json || (echo "Output file not found" && exit 1)
+
+      - name: Validate JSON structure
+        shell: bash
+        run: |
+          jq -e '.lastUpdated' test-output/reading.json
+          jq -e '.currentlyReading | type == "array"' test-output/reading.json
+          jq -e '.finished | type == "array"' test-output/reading.json
+          jq -e '.wantToRead | type == "array"' test-output/reading.json
+          TOTAL=$(jq '[.currentlyReading, .finished, .wantToRead | length] | add' test-output/reading.json)
+          if [ "$TOTAL" -eq 0 ]; then
+            echo "Warning: No books found in any category" >&2
+          else
+            echo "Total books: ${TOTAL}"
+          fi
+
+      - name: Validate book schema
+        shell: bash
+        run: |
+          if jq -e '.finished | length > 0' test-output/reading.json > /dev/null 2>&1; then
+            jq -e '.finished[0] | has("title", "author", "coverUrl", "hardcoverUrl", "rating", "dateFinished")' test-output/reading.json
+            echo "Finished book schema: valid"
+          fi
+          if jq -e '.currentlyReading | length > 0' test-output/reading.json > /dev/null 2>&1; then
+            jq -e '.currentlyReading[0] | has("title", "author", "coverUrl", "hardcoverUrl")' test-output/reading.json
+            echo "Currently reading book schema: valid"
+          fi
+          if jq -e '.wantToRead | length > 0' test-output/reading.json > /dev/null 2>&1; then
+            jq -e '.wantToRead[0] | has("title", "author", "coverUrl", "hardcoverUrl")' test-output/reading.json
+            echo "Want to read book schema: valid"
+          fi
+
+      - name: ShellCheck scripts
+        continue-on-error: true
+        shell: bash
+        run: |
+          if command -v shellcheck > /dev/null 2>&1; then
+            shellcheck scripts/*.sh
+          else
+            echo "ShellCheck not available, skipping"
+          fi
+
+      - name: Print output for debugging
+        if: always()
+        shell: bash
+        run: cat test-output/reading.json | jq . || cat test-output/reading.json
