@@ -15,7 +15,7 @@ set -euo pipefail
 : "${HC_OUTPUT_PATH:?must be set}"
 : "${HC_TMPDIR:?must be set}"
 
-# shellcheck source=validate-inputs.sh
+# shellcheck source=scripts/validate-inputs.sh
 source "$(dirname "$0")/validate-inputs.sh"
 validate_output_path "$HC_OUTPUT_PATH"
 

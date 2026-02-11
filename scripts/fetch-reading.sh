@@ -18,9 +18,9 @@ set -euo pipefail
 : "${HC_LIMIT:?must be set}"
 : "${HC_TMPDIR:?must be set}"
 
-# shellcheck source=validate-inputs.sh
+# shellcheck source=scripts/validate-inputs.sh
 source "$(dirname "$0")/validate-inputs.sh"
-# shellcheck source=http.sh
+# shellcheck source=scripts/http.sh
 source "$(dirname "$0")/http.sh"
 
 validate_token "$HC_TOKEN"
@@ -35,6 +35,7 @@ mkdir -p "$HC_TMPDIR"
 # ---------------------------------------------------------------------------
 # Construct GraphQL query
 # ---------------------------------------------------------------------------
+# shellcheck disable=SC2016 # GraphQL variables ($userId/$limit) are interpreted by the API, not by bash.
 QUERY='query GetUserBooks($userId: Int!, $limit: Int!) {
   user_books(
     where: { user_id: { _eq: $userId } }
