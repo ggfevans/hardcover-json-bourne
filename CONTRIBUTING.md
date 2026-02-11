@@ -4,7 +4,7 @@ Thanks for your interest in contributing to this project.
 
 ## Reporting Bugs
 
-Open a [GitHub issue](https://github.com/ggfevans/hardcover-github-action/issues/new) with:
+Open a [GitHub issue](https://github.com/ggfevans/hardcover-json-bourne/issues/new) with:
 
 - What you expected to happen
 - What actually happened
@@ -13,7 +13,7 @@ Open a [GitHub issue](https://github.com/ggfevans/hardcover-github-action/issues
 
 ## Suggesting Features
 
-Open an issue describing the use case. This action is intentionally minimal -- it fetches data from Hardcover and writes JSON. Features that add complexity without broad utility may not be accepted.
+Open an issue describing the use case. This action is intentionally minimal: it fetches data from Hardcover and writes JSON. Features that add complexity without broad utility may not be accepted.
 
 ## Submitting Pull Requests
 
@@ -23,6 +23,8 @@ Open an issue describing the use case. This action is intentionally minimal -- i
 4. Open a PR against `main` with a clear description of what changed and why
 
 Keep PRs focused on a single change. If you're fixing a bug and also want to refactor something, open separate PRs.
+
+For public fork-based PRs, CI always runs static checks. Secret-backed integration checks run only for branches in this repository.
 
 ## Development Setup
 

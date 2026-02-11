@@ -1,4 +1,4 @@
-name: 'Hardcover Reading Data'
+name: 'Hardcover JSON Bourne'
 description: 'Fetch reading data from Hardcover and write to JSON'
 branding:
   icon: 'book-open'

@@ -1,0 +1,43 @@
+# Example workflow for ggfevans/hardcover-json-bourne
+#
+# Copy this file to .github/workflows/update-reading-data.yml in your repository
+# and ensure HARDCOVER_TOKEN / HARDCOVER_USER_ID secrets are configured.
+#
+# Required secrets:
+# - HARDCOVER_TOKEN
+# - HARDCOVER_USER_ID
+
+name: Update Reading Data
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # daily
+  workflow_dispatch: # manual trigger from Actions tab
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    # This workflow commits and pushes output changes.
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: ggfevans/hardcover-json-bourne@v1 # v1
+        with:
+          token: ${{ secrets.HARDCOVER_TOKEN }}
+          user_id: ${{ secrets.HARDCOVER_USER_ID }}
+
+          # Where to write the JSON file (default: src/data/reading.json)
+          # output_path: src/data/reading.json
+
+          # Maximum books per status bucket (default: 50)
+          # limit: '50'
+
+      - name: Commit and push
+        uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5.2.0
+        with:
+          commit_message: 'chore: update reading data'
+          file_pattern: src/data/reading.json

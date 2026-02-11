@@ -4,16 +4,36 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  test:
+  static:
+    name: Static Checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Bash syntax check
+        shell: bash
+        run: bash -n scripts/*.sh
+
+      - name: ShellCheck scripts
+        uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # v2.0.0
+        with:
+          scandir: "./scripts"
+          severity: warning
+
+  integration:
+    name: Integration (with secrets)
+    needs: static
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Run action
         uses: ./
@@ -21,7 +41,7 @@ jobs:
           token: ${{ secrets.HARDCOVER_TOKEN }}
           user_id: ${{ secrets.HARDCOVER_USER_ID }}
           output_path: test-output/reading.json
-          limit: '10'
+          limit: "10"
 
       - name: Validate output exists
         shell: bash
@@ -46,29 +66,28 @@ jobs:
         shell: bash
         run: |
           if jq -e '.finished | length > 0' test-output/reading.json > /dev/null 2>&1; then
-            jq -e '.finished[0] | has("title", "author", "coverUrl", "hardcoverUrl", "rating", "dateFinished")' test-output/reading.json
+            jq -e '.finished[0] | (has("title") and has("author") and has("coverUrl") and has("hardcoverUrl") and has("rating") and has("dateFinished"))' test-output/reading.json
             echo "Finished book schema: valid"
           fi
           if jq -e '.currentlyReading | length > 0' test-output/reading.json > /dev/null 2>&1; then
-            jq -e '.currentlyReading[0] | has("title", "author", "coverUrl", "hardcoverUrl")' test-output/reading.json
+            jq -e '.currentlyReading[0] | (has("title") and has("author") and has("coverUrl") and has("hardcoverUrl"))' test-output/reading.json
             echo "Currently reading book schema: valid"
           fi
           if jq -e '.wantToRead | length > 0' test-output/reading.json > /dev/null 2>&1; then
-            jq -e '.wantToRead[0] | has("title", "author", "coverUrl", "hardcoverUrl")' test-output/reading.json
+            jq -e '.wantToRead[0] | (has("title") and has("author") and has("coverUrl") and has("hardcoverUrl"))' test-output/reading.json
             echo "Want to read book schema: valid"
-          fi
-
-      - name: ShellCheck scripts
-        continue-on-error: true
-        shell: bash
-        run: |
-          if command -v shellcheck > /dev/null 2>&1; then
-            shellcheck scripts/*.sh
-          else
-            echo "ShellCheck not available, skipping"
           fi
 
       - name: Print output for debugging
         if: always()
         shell: bash
         run: cat test-output/reading.json | jq . || cat test-output/reading.json
+
+  fork-pr-note:
+    name: Fork PR Integration Notice
+    needs: static
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain skipped integration checks
+        run: echo "Integration tests require secrets and are skipped for fork PRs. Static checks still run."
