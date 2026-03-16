@@ -22,14 +22,10 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Bash syntax check
-        run: |
-          set -euo pipefail
-          bash -n scripts/*.sh
+        run: bash -n scripts/*.sh
 
       - name: ShellCheck scripts (strict)
-        run: |
-          set -euo pipefail
-          shellcheck -x -S info scripts/*.sh
+        run: shellcheck -x -S info scripts/*.sh
 
   integration:
     name: Integration (with secrets)
@@ -48,13 +44,10 @@ jobs:
           limit: "10"
 
       - name: Validate output exists
-        run: |
-          set -euo pipefail
-          test -f test-output/reading.json || (echo "Output file not found" && exit 1)
+        run: test -f test-output/reading.json || (echo "Output file not found" && exit 1)
 
       - name: Validate JSON structure
         run: |
-          set -euo pipefail
           jq -e '.lastUpdated' test-output/reading.json
           jq -e '.currentlyReading | type == "array"' test-output/reading.json
           jq -e '.finished | type == "array"' test-output/reading.json
@@ -68,7 +61,6 @@ jobs:
 
       - name: Validate book schema
         run: |
-          set -euo pipefail
           if jq -e '.finished | length > 0' test-output/reading.json > /dev/null 2>&1; then
             jq -e '.finished[0] | (has("title") and has("author") and has("coverUrl") and has("hardcoverUrl") and has("rating") and has("dateFinished"))' test-output/reading.json
             echo "Finished book schema: valid"
@@ -93,6 +85,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Explain skipped integration checks
-        run: |
-          set -euo pipefail
-          echo "Integration tests require secrets and are skipped for fork PRs. Static checks still run."
+        run: echo "Integration tests require secrets and are skipped for fork PRs. Static checks still run."

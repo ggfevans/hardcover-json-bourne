@@ -80,8 +80,8 @@ jobs:
             echo "Generating changelog: ${PREV_TAG}..${TAG_NAME}"
             git log --format="- %s" "${PREV_TAG}..${TAG_NAME}" | grep -v "^- docs: update references" > /tmp/commits.txt || true
           else
-            echo "No previous tag found, listing all commits"
-            git log --format="- %s" "${TAG_NAME}" | grep -v "^- docs: update references" > /tmp/commits.txt || true
+            echo "No previous tag found, generating initial release entry"
+            echo "- Initial release" > /tmp/commits.txt
           fi
 
           if [ -f CHANGELOG.md ]; then
