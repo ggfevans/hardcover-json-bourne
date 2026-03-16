@@ -4,7 +4,8 @@
 
 | Version | Supported |
 |---------|-----------|
-| v1.x    | Yes       |
+| 1.0.x   | Yes       |
+| < 1.0   | No        |
 
 Only the latest supported major release line (`vN.x`) is actively supported with security fixes.
 
