@@ -4,9 +4,10 @@
 
 | Version | Supported |
 |---------|-----------|
-| v1.x    | Yes       |
+| 1.0.x   | Yes       |
+| < 1.0   | No        |
 
-Only the latest release is actively supported with security fixes.
+Only the latest supported major release line (`vN.x`) is actively supported with security fixes.
 
 ## Reporting a Vulnerability
 
@@ -14,7 +15,7 @@ Only the latest release is actively supported with security fixes.
 
 Instead, please report them through GitHub's private security advisory feature:
 
-1. Go to the [Security Advisories page](https://github.com/ggfevans/hardcover-github-action/security/advisories)
+1. Go to the [Security Advisories page](https://github.com/ggfevans/hardcover-json-bourne/security/advisories)
 2. Click **"New draft security advisory"**
 3. Fill in the details of the vulnerability
 

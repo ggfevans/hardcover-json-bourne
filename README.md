@@ -1,4 +1,4 @@
-# Hardcover GitHub Action
+# Hardcover JSON Bourne
 
 A composite GitHub Action that fetches reading data from the [Hardcover](https://hardcover.app) GraphQL API and writes it to a structured JSON file. Built as part of [gvns.ca](https://gvns.ca) ([source](https://github.com/ggfevans/gvns.ca)) and provided as-is.
 
@@ -10,7 +10,9 @@ Authentication is required -- you need a Hardcover API token.
 
 ## Installation
 
-Add a workflow file to your repository (e.g. `.github/workflows/fetch-reading.yml`):
+Copy [`example.yml`](example.yml) to `.github/workflows/fetch-reading.yml` in your repository and replace the secret names if needed.
+
+Or use this minimal snippet:
 
 ```yaml
 name: Fetch Reading Data
@@ -26,20 +28,18 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: ggfevans/hardcover-github-action@v1
+      - uses: ggfevans/hardcover-json-bourne@v1
         with:
           token: ${{ secrets.HARDCOVER_TOKEN }}
           user_id: ${{ secrets.HARDCOVER_USER_ID }}
 
       - name: Commit and push
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add src/data/reading.json
-          git diff --staged --quiet || git commit -m "chore: update reading data"
-          git push
+        uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5.2.0
+        with:
+          commit_message: 'chore: update reading data'
+          file_pattern: src/data/reading.json
 ```
 
 The action writes the JSON file. Committing and pushing is handled separately.

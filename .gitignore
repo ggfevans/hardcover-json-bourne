@@ -1,9 +1,15 @@
+# macOS
+.DS_Store
+
 # Intermediate files
 /tmp-*
 *.tmp
 
+# Test output
+/test-output/
+
 # Design docs and plans
 /docs/
 
-# Test output
-/test-output/
+# Worktrees
+/.worktrees/
